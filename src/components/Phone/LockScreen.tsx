@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { ChevronUp, Sun, Moon, Bell } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useNavigation } from '@/contexts/NavigationContext';
-import { ChevronUp } from 'lucide-react';
 
 export function LockScreen() {
-  const { theme, isDarkMode } = useTheme();
+  const { theme, isDarkMode, toggleTheme } = useTheme();
   const { navigate } = useNavigation();
   const [time, setTime] = useState(new Date());
   const [isUnlocking, setIsUnlocking] = useState(false);
@@ -24,11 +24,42 @@ export function LockScreen() {
 
   return (
     <motion.div 
-      className={`h-full flex flex-col ${theme.gradients.main}`}
+      className={`h-full flex flex-col relative ${theme.gradients.main}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
+      {/* Üst Bar */}
+      <div className="absolute top-0 left-0 right-0 p-4">
+        <div className="flex justify-between items-center gap-3">
+          {/* Bildirimler */}
+          <div className={`flex-1 ${theme.glass} rounded-2xl p-3 backdrop-blur-lg
+            ring-1 ${isDarkMode ? 'ring-white/10' : 'ring-black/5'}
+            flex items-center gap-3`}>
+            <Bell className={`w-4 h-4 ${theme.text.secondary}`} />
+            <p className={`text-sm ${theme.text.secondary} truncate`}>
+              Bildirim yok
+            </p>
+          </div>
+
+          {/* Tema Değiştirici */}
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={toggleTheme}
+            className={`p-3 rounded-2xl ${theme.glass} backdrop-blur-lg
+              ring-1 ${isDarkMode ? 'ring-white/10' : 'ring-black/5'}
+              transition-all duration-200
+              hover:${isDarkMode ? 'bg-white/10' : 'bg-black/5'}`}
+          >
+            {isDarkMode ? (
+              <Sun className={`w-4 h-4 ${theme.text.primary}`} />
+            ) : (
+              <Moon className={`w-4 h-4 ${theme.text.primary}`} />
+            )}
+          </motion.button>
+        </div>
+      </div>
+
       {/* Saat ve Tarih */}
       <div className="flex-1 flex flex-col items-center justify-center">
         <motion.div
@@ -54,7 +85,7 @@ export function LockScreen() {
         </motion.div>
       </div>
 
-      {/* Kilit Açma Göstergesi */}
+      {/* Kilit Açma */}
       <motion.div
         className="pb-16 flex flex-col items-center gap-4"
         initial={{ y: 20, opacity: 0 }}
@@ -88,16 +119,6 @@ export function LockScreen() {
           </span>
         </motion.button>
       </motion.div>
-
-      {/* Bildirimler için yer tutucu */}
-      <div className="absolute top-0 left-0 right-0 p-4">
-        <div className={`${theme.glass} rounded-2xl p-4 backdrop-blur-lg
-          ring-1 ${isDarkMode ? 'ring-white/10' : 'ring-black/5'}`}>
-          <p className={`text-sm ${theme.text.secondary}`}>
-            Bildirim yok
-          </p>
-        </div>
-      </div>
     </motion.div>
   );
 }
