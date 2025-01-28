@@ -28,7 +28,7 @@ export function Phone() {
   };
 
   return (
-    <div className="relative w-full h-[calc(100vh-2rem)] flex items-center justify-center p-4 overflow-hidden">
+    <div className="relative w-full h-[calc(100vh)] flex items-center justify-center  overflow-hidden">
       {/* Ambient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" />
       
