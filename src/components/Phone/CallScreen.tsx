@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Video, Mic, VolumeX, Camera, SignalHigh, LayoutGrid, PhoneOff } from 'lucide-react';
 import { phoneTheme, commonComponents } from '../../utils/phoneTheme';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { Header } from './components/Header';
 const { StatusBar, ActionButton } = commonComponents;
 
 interface CallScreenProps {
@@ -10,12 +13,39 @@ interface CallScreenProps {
 }
 
 export function CallScreen({ type, name }: CallScreenProps) {
+  const { theme, isDarkMode } = useTheme();
+  const { navigate } = useNavigation();
   const [isCameraFlipped, setIsCameraFlipped] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
+  const [callDuration, setCallDuration] = useState(0);
+  const [isSpeakerOn, setIsSpeakerOn] = useState(false);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCallDuration(prev => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleEndCall = () => {
+    navigate('home');
+  };
 
   return (
-    <div className={`h-full relative ${phoneTheme.gradients.main}`}>
+    <div className={`h-full flex flex-col ${theme.gradients.main}`}>
+      <Header 
+        title={type === 'video' ? 'Görüntülü Arama' : 'Sesli Arama'}
+        showBack={false}
+      />
+
       {/* Dekoratif arka plan efektleri */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <motion.div 
@@ -45,104 +75,84 @@ export function CallScreen({ type, name }: CallScreenProps) {
       </div>
 
       {/* Ana içerik */}
-      <div className="relative h-full flex flex-col items-center pt-20">
-        {/* Profil alanı */}
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="text-center"
-        >
-          <div className={`w-24 h-24 rounded-full ${phoneTheme.gradients.glass} mb-4 mx-auto
+      <div className="flex-1 flex flex-col items-center">
+        {/* Caller Info */}
+        <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
+          <div className={`w-24 h-24 rounded-full ${theme.glass} mb-6
             flex items-center justify-center`}>
-            <span className={`text-3xl ${phoneTheme.text.primary}`}>
-              {name[0].toUpperCase()}
+            <span className={`text-4xl font-medium ${theme.text.primary}`}>
+              {name[0]}
             </span>
           </div>
-          <h1 className={`text-2xl font-semibold mb-2 ${phoneTheme.text.primary}`}>
+          
+          <h2 className={`text-2xl font-semibold ${theme.text.primary} mb-2`}>
             {name}
-          </h1>
-          <p className={`text-lg ${phoneTheme.text.secondary}`}>
-            {type === 'incoming' ? 'Gelen Arama' : 
-             type === 'outgoing' ? 'Aranıyor...' : 
-             'Görüntülü Arama'}
+          </h2>
+          
+          <p className={`${theme.text.secondary} text-sm`}>
+            {type === 'outgoing' ? 'Aranıyor...' : formatTime(callDuration)}
           </p>
-        </motion.div>
+        </div>
 
-        {/* Arama durumu animasyonu */}
-        <motion.div
-          className="mt-8 flex gap-3"
-          animate={{
-            scale: [1, 1.05, 1],
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          {[0, 1, 2].map((i) => (
-            <motion.div
-              key={i}
-              className={`w-2 h-2 rounded-full ${phoneTheme.text.primary}`}
-              animate={{
-                opacity: [0.3, 1, 0.3],
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                delay: i * 0.2,
-                ease: "easeInOut"
-              }}
-            />
-          ))}
-        </motion.div>
-
-        {/* Kontrol butonları */}
-        <div className="absolute bottom-20 left-0 right-0">
-          <div className="flex justify-center gap-6">
-            {type === 'incoming' ? (
-              <>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  className={`w-16 h-16 rounded-full ${phoneTheme.buttons.danger} 
-                    flex items-center justify-center`}
-                >
-                  <PhoneOff className="w-6 h-6 text-white" />
-                </motion.button>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  className={`w-16 h-16 rounded-full ${phoneTheme.buttons.success}
-                    flex items-center justify-center`}
-                >
-                  <Phone className="w-6 h-6 text-white" />
-                </motion.button>
-              </>
-            ) : (
-              <div className="flex gap-4">
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  className={`w-14 h-14 rounded-full ${phoneTheme.buttons.primary}
-                    flex items-center justify-center`}
-                >
-                  <Mic className="w-5 h-5 text-white" />
-                </motion.button>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  className={`w-14 h-14 rounded-full ${phoneTheme.buttons.danger}
-                    flex items-center justify-center`}
-                >
-                  <PhoneOff className="w-5 h-5 text-white" />
-                </motion.button>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  className={`w-14 h-14 rounded-full ${phoneTheme.buttons.primary}
-                    flex items-center justify-center`}
-                >
-                  <VolumeX className="w-5 h-5 text-white" />
-                </motion.button>
+        {/* Call Controls */}
+        <div className="w-full px-6 pb-8">
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsMuted(!isMuted)}
+              className={`p-4 rounded-xl ${theme.glass} 
+                ${isMuted ? 'bg-red-500/20' : ''} 
+                transition-colors duration-200`}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <Mic className={`w-6 h-6 ${isMuted ? 'text-red-500' : theme.text.primary}`} />
+                <span className={`text-xs ${isMuted ? 'text-red-500' : theme.text.secondary}`}>
+                  Mikrofon
+                </span>
               </div>
-            )}
+            </motion.button>
+
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsSpeakerOn(!isSpeakerOn)}
+              className={`p-4 rounded-xl ${theme.glass}
+                ${isSpeakerOn ? 'bg-blue-500/20' : ''}
+                transition-colors duration-200`}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <VolumeX className={`w-6 h-6 ${isSpeakerOn ? 'text-blue-500' : theme.text.primary}`} />
+                <span className={`text-xs ${isSpeakerOn ? 'text-blue-500' : theme.text.secondary}`}>
+                  Hoparlör
+                </span>
+              </div>
+            </motion.button>
+
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('videoCall')}
+              className={`p-4 rounded-xl ${theme.glass}`}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <Video className={`w-6 h-6 ${theme.text.primary}`} />
+                <span className={`text-xs ${theme.text.secondary}`}>
+                  Video
+                </span>
+              </div>
+            </motion.button>
           </div>
+
+          {/* End Call Button */}
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={handleEndCall}
+            className="w-full py-4 rounded-xl bg-red-500 hover:bg-red-600
+              transition-colors duration-200 flex items-center justify-center gap-2"
+          >
+            <Phone className="w-6 h-6 text-white rotate-[135deg]" />
+            <span className="text-white font-medium">
+              Aramayı Sonlandır
+            </span>
+          </motion.button>
         </div>
       </div>
     </div>

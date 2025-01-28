@@ -1,182 +1,254 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Plus, Phone, Video, Mail } from 'lucide-react';
-import { phoneTheme } from '@/utils/phoneTheme';
-import { AddNewContactScreen } from './AddNewContactScreen';
+import { Search, Plus, Phone, Video, Mail, Star, Heart, 
+         MessageSquare, ChevronRight, User2 } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { Header } from './components/Header';
 
 interface Contact {
   id: number;
   name: string;
   number: string;
   email?: string;
+  favorite?: boolean;
+  recentCall?: 'missed' | 'incoming' | 'outgoing';
+  lastContacted?: string;
+  avatar?: string;
 }
 
 export function ContactsScreen() {
+  const { theme, isDarkMode } = useTheme();
+  const { navigate } = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [showAddContact, setShowAddContact] = useState(false);
-  const [contacts, setContacts] = useState<Contact[]>([
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [view, setView] = useState<'all' | 'favorites' | 'recent'>('all');
+
+  const [contacts] = useState<Contact[]>([
     { 
       id: 1, 
       name: 'Alice Johnson', 
-      number: '+1 (234) 567-8901',
-      email: 'alice@example.com'
+      number: '+1 234 567 89 00', 
+      email: 'alice@example.com',
+      favorite: true,
+      recentCall: 'missed',
+      lastContacted: '2 hours ago'
     },
-    { 
-      id: 2, 
-      name: 'Bob Smith', 
-      number: '+1 (345) 678-9012',
-      email: 'bob@example.com'
-    },
-    { 
-      id: 3, 
-      name: 'Charlie Brown', 
-      number: '+1 (456) 789-0123',
-      email: 'charlie@example.com'
-    },
-    { 
-      id: 4, 
-      name: 'David Wilson', 
-      number: '+1 (567) 890-1234',
-      email: 'david@example.com'
-    }
+    { id: 2, name: 'Bob Smith', number: '+1 234 567 89 01', email: 'bob@example.com' },
+    { id: 3, name: 'Charlie Brown', number: '+1 234 567 89 02' },
+    { id: 4, name: 'David Wilson', number: '+1 234 567 89 03', email: 'david@example.com' },
+    { id: 5, name: 'Eve Anderson', number: '+1 234 567 89 04' },
+    { id: 6, name: 'Frank Thomas', number: '+1 234 567 89 05', email: 'frank@example.com' },
+    { id: 7, name: 'Grace Lee', number: '+1 234 567 89 06' },
+    { id: 8, name: 'Henry Davis', number: '+1 234 567 89 07', email: 'henry@example.com' },
   ]);
 
-  const handleAddContact = (newContact: Omit<Contact, 'id'>) => {
-    setContacts(prev => [...prev, {
-      ...newContact,
-      id: Math.max(...prev.map(c => c.id)) + 1
-    }]);
+  const filteredContacts = contacts.filter(contact => {
+    const matchesSearch = contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         contact.number.includes(searchQuery);
+    if (view === 'favorites') return matchesSearch && contact.favorite;
+    if (view === 'recent') return matchesSearch && contact.recentCall;
+    return matchesSearch;
+  });
+
+  const handleCall = (contact: Contact) => {
+    navigate('call');
   };
 
-  const filteredContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    contact.number.includes(searchQuery)
-  );
+  const handleVideoCall = (contact: Contact) => {
+    navigate('videoCall');
+  };
 
   return (
-    <div className={`h-full relative ${phoneTheme.gradients.main}`}>
-      <AnimatePresence mode="wait">
-        {showAddContact ? (
-          <motion.div
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            className="absolute inset-0 z-10"
+    <div className={`h-full flex flex-col ${theme.gradients.main}`}>
+      <Header 
+        title="Kişiler" 
+        rightAction={
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            className={`p-2 rounded-xl ${theme.buttons.primary}`}
           >
-            <AddNewContactScreen
-              onBack={() => setShowAddContact(false)}
-              onSave={(contact) => {
-                handleAddContact(contact);
-                setShowAddContact(false);
-              }}
-            />
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, x: -100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 100 }}
-            className="h-full"
-          >
-            {/* Dekoratif arka plan efektleri */}
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
-              <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
-            </div>
+            <Plus className={`w-5 h-5 ${theme.text.primary}`} />
+          </motion.button>
+        }
+      />
+      
+      {/* View Selector */}
+      <div className="px-4 py-2">
+        <div className={`flex gap-2 p-1 rounded-xl ${isDarkMode ? 'bg-black/20' : 'bg-white/20'}`}>
+          {['all', 'favorites', 'recent'].map((v) => (
+            <motion.button
+              key={v}
+              onClick={() => setView(v as any)}
+              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium
+                ${view === v 
+                  ? `${isDarkMode ? 'bg-white/10' : 'bg-black/5'} ${theme.text.primary}` 
+                  : theme.text.secondary}`}
+              whileTap={{ scale: 0.98 }}
+            >
+              {v.charAt(0).toUpperCase() + v.slice(1)}
+            </motion.button>
+          ))}
+        </div>
+      </div>
 
-            {/* Ana içerik */}
-            <div className="relative h-full flex flex-col">
-              {/* Başlık */}
-              <div className="pt-4 px-6 pb-2">
-                <h1 className={`text-2xl font-semibold ${phoneTheme.text.primary}`}>
-                  Kişiler
-                </h1>
-              </div>
+      {/* Search Bar */}
+      <div className="px-4 py-2">
+        <div className={`${theme.glass} rounded-xl p-2 flex items-center gap-2
+          ring-1 ${isDarkMode ? 'ring-white/10' : 'ring-black/5'}`}>
+          <Search className={`w-5 h-5 ${theme.text.secondary}`} />
+          <input
+            type="text"
+            placeholder="Kişi ara..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={`bg-transparent flex-1 outline-none ${theme.text.primary} 
+              placeholder:${theme.text.secondary} text-sm`}
+          />
+        </div>
+      </div>
 
-              {/* Arama çubuğu */}
-              <div className="px-4 mb-4">
-                <div className={`${phoneTheme.gradients.glass} rounded-2xl`}>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      className="w-full h-12 bg-transparent pl-12 pr-4 text-[15px] font-medium text-white placeholder:text-white/40 focus:outline-none"
-                      placeholder="Kişilerde ara..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onFocus={() => setIsSearchFocused(true)}
-                      onBlur={() => setIsSearchFocused(false)}
-                    />
-                    <Search 
-                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5
-                        ${isSearchFocused ? 'text-white/70' : 'text-white/40'}`}
-                    />
+      {/* Contacts List */}
+      <div className="flex-1 overflow-y-auto hide-scrollbar">
+        <div className="px-4 py-2 space-y-2">
+          <AnimatePresence>
+            {filteredContacts.map((contact) => (
+              <motion.div
+                key={contact.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className={`${theme.glass} rounded-xl
+                  ${selectedContact?.id === contact.id 
+                    ? (isDarkMode ? 'bg-white/15' : 'bg-black/10') 
+                    : ''}
+                  transition-colors duration-200`}
+              >
+                <div className="p-3 flex items-center gap-3">
+                  {/* Avatar or Initial */}
+                  <div className={`w-12 h-12 rounded-full 
+                    ${isDarkMode ? 'bg-white/10' : 'bg-black/5'}
+                    flex items-center justify-center relative group`}>
+                    {contact.avatar ? (
+                      <img 
+                        src={contact.avatar} 
+                        alt={contact.name}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <User2 className={`w-6 h-6 ${theme.text.secondary}`} />
+                    )}
+                    {contact.favorite && (
+                      <div className="absolute -top-1 -right-1">
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Contact Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className={`font-medium ${theme.text.primary} truncate`}>
+                        {contact.name}
+                      </h3>
+                      {contact.recentCall && (
+                        <span className={`text-xs px-2 py-0.5 rounded-full
+                          ${contact.recentCall === 'missed' 
+                            ? 'bg-red-500/20 text-red-500' 
+                            : contact.recentCall === 'incoming'
+                              ? 'bg-green-500/20 text-green-500'
+                              : 'bg-blue-500/20 text-blue-500'}`}>
+                          {contact.recentCall}
+                        </span>
+                      )}
+                    </div>
+                    <p className={`text-sm ${theme.text.secondary} truncate`}>
+                      {contact.number}
+                    </p>
+                    {contact.lastContacted && (
+                      <p className={`text-xs ${theme.text.secondary} mt-0.5`}>
+                        {contact.lastContacted}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Quick Actions */}
+                  <div className="flex items-center gap-2">
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleCall(contact)}
+                      className={`p-2 rounded-xl ${theme.buttons.primary}
+                        hover:bg-green-500/20 active:bg-green-500/30 
+                        transition-colors duration-200`}
+                    >
+                      <Phone className={`w-4 h-4 ${theme.text.primary}`} />
+                    </motion.button>
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleVideoCall(contact)}
+                      className={`p-2 rounded-xl ${theme.buttons.primary}
+                        hover:bg-blue-500/20 active:bg-blue-500/30 
+                        transition-colors duration-200`}
+                    >
+                      <Video className={`w-4 h-4 ${theme.text.primary}`} />
+                    </motion.button>
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setSelectedContact(contact)}
+                      className={`p-2 rounded-xl ${theme.buttons.primary}`}
+                    >
+                      <ChevronRight className={`w-4 h-4 ${theme.text.primary}`} />
+                    </motion.button>
                   </div>
                 </div>
-              </div>
 
-              {/* Kişiler listesi */}
-              <div className="flex-1 px-4 overflow-y-auto">
+                {/* Expanded Contact Details */}
                 <AnimatePresence>
-                  {filteredContacts.map((contact, index) => (
+                  {selectedContact?.id === contact.id && (
                     <motion.div
-                      key={contact.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ delay: index * 0.05 }}
-                      className={`mb-2 ${phoneTheme.gradients.glass} rounded-2xl p-4`}
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-12 h-12 rounded-full ${phoneTheme.gradients.glass} flex items-center justify-center`}>
-                            <span className={`text-lg font-medium ${phoneTheme.text.primary}`}>
-                              {contact.name[0]}
-                            </span>
-                          </div>
-                          <div>
-                            <h3 className={`text-base font-medium ${phoneTheme.text.primary}`}>
-                              {contact.name}
-                            </h3>
-                            <p className={`text-sm ${phoneTheme.text.secondary}`}>
-                              {contact.number}
-                            </p>
-                          </div>
-                        </div>
-                        
+                      <div className={`px-4 py-3 border-t 
+                        ${isDarkMode ? 'border-white/10' : 'border-black/5'}`}>
                         <div className="flex gap-2">
-                          <motion.button
-                            whileTap={{ scale: 0.9 }}
-                            className={`p-2.5 rounded-full ${phoneTheme.buttons.primary}`}
-                          >
-                            <Phone className="w-4 h-4 text-white" />
-                          </motion.button>
-                          <motion.button
-                            whileTap={{ scale: 0.9 }}
-                            className={`p-2.5 rounded-full ${phoneTheme.buttons.primary}`}
-                          >
-                            <Video className="w-4 h-4 text-white" />
-                          </motion.button>
+                          {[
+                            { icon: <MessageSquare className="w-4 h-4" />, label: 'Message' },
+                            { icon: <Mail className="w-4 h-4" />, label: 'Email' },
+                            { icon: <Heart className="w-4 h-4" />, label: 'Favorite' },
+                          ].map((action, index) => (
+                            <motion.button
+                              key={index}
+                              whileTap={{ scale: 0.95 }}
+                              className={`flex-1 py-2 px-3 rounded-xl ${theme.buttons.primary}
+                                flex items-center justify-center gap-2`}
+                            >
+                              {action.icon}
+                              <span className="text-sm">{action.label}</span>
+                            </motion.button>
+                          ))}
                         </div>
                       </div>
                     </motion.div>
-                  ))}
+                  )}
                 </AnimatePresence>
-              </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      </div>
 
-              {/* Plus butonu güncellendi */}
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowAddContact(true)}
-                className={`absolute bottom-6 right-6 w-14 h-14 rounded-full 
-                  ${phoneTheme.buttons.primary} flex items-center justify-center`}
-              >
-                <Plus className="w-6 h-6 text-white" />
-              </motion.button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <style jsx global>{`
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 } 

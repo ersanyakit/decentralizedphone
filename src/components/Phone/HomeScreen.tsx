@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, MessageSquare, Camera, Chrome, Calendar, Music, Mail, 
-         Settings, Image, Map, Cloud, Battery, Wifi, SignalHigh } from 'lucide-react';
+import { Phone, MessageSquare, Camera, Chrome, Calendar, Music2, 
+         Settings, Image, Map, Cloud, Calculator, Mail, Users } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useNavigation } from '@/contexts/NavigationContext';
 
 interface AppIconProps {
   icon: React.ReactNode;
@@ -21,7 +23,9 @@ const theme = {
   gradient: {
     primary: 'linear-gradient(135deg, #0A0F2C 0%, #252A4A 100%)',
     overlay: 'linear-gradient(180deg, rgba(10, 15, 44, 0.8) 0%, rgba(37, 42, 74, 0.8) 100%)',
-  }
+  },
+  glass: 'glass',
+  text: 'text-white/90'
 };
 
 // App ikonları için yeni gradyanlar
@@ -72,51 +76,6 @@ const AppIcon: React.FC<AppIconProps> = ({ icon, label, gradient, notification, 
   </motion.button>
 );
 
-const apps = [
-  { 
-    icon: <Phone className="w-6 h-6 text-white" />, 
-    label: 'Phone',
-    gradient: 'linear-gradient(135deg, #00F5A0 0%, #00D9F5 100%)',
-    notification: 2
-  },
-  { 
-    icon: <MessageSquare className="w-6 h-6 text-white" />, 
-    label: 'Messages',
-    gradient: 'linear-gradient(135deg, #00C6FB 0%, #005BEA 100%)',
-    notification: 5
-  },
-  { 
-    icon: <Camera className="w-6 h-6 text-white" />, 
-    label: 'Camera',
-    gradient: 'linear-gradient(135deg, #F6D242 0%, #FF52E5 100%)'
-  },
-  { 
-    icon: <Chrome className="w-6 h-6 text-white" />, 
-    label: 'Chrome',
-    gradient: 'linear-gradient(135deg, #FF9897 0%, #F650A0 100%)'
-  },
-  { 
-    icon: <Calendar className="w-6 h-6 text-white" />, 
-    label: 'Calendar',
-    gradient: 'linear-gradient(135deg, #FDD819 0%, #E80505 100%)'
-  },
-  { 
-    icon: <Music className="w-6 h-6 text-white" />, 
-    label: 'Music',
-    gradient: 'linear-gradient(135deg, #30C5D2 0%, #471069 100%)'
-  },
-  { 
-    icon: <Mail className="w-6 h-6 text-white" />, 
-    label: 'Mail',
-    gradient: 'linear-gradient(135deg, #B721FF 0%, #21D4FD 100%)'
-  },
-  { 
-    icon: <Map className="w-6 h-6 text-white" />, 
-    label: 'Maps',
-    gradient: 'linear-gradient(135deg, #4E65FF 0%, #92EFFD 100%)'
-  },
-];
-
 const dockApps = [
   { 
     icon: <Phone className="w-6 h-6 text-white" />, 
@@ -140,89 +99,160 @@ const dockApps = [
   },
 ];
 
-export const HomeScreen: React.FC = () => {
-  const [time, setTime] = useState(new Date());
-  const [weather] = useState({ temp: '24°', condition: 'Partly Cloudy' });
+export function HomeScreen() {
+  const { theme, isDarkMode } = useTheme();
+  const { navigate } = useNavigation();
 
-  useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+  const apps = [
+    { 
+      icon: <Phone className="w-6 h-6" />, 
+      label: 'Phone', 
+      onClick: () => navigate('dial'),
+      gradient: 'from-emerald-400 to-green-500 dark:from-emerald-500 dark:to-green-600'
+    },
+    { 
+      icon: <MessageSquare className="w-6 h-6" />, 
+      label: 'Messages',
+      onClick: () => navigate('messages'),
+      gradient: 'from-blue-400 to-indigo-500 dark:from-blue-500 dark:to-indigo-600'
+    },
+    { 
+      icon: <Users className="w-6 h-6" />, 
+      label: 'Contacts',
+      onClick: () => navigate('contacts'),
+      gradient: 'from-violet-400 to-purple-500 dark:from-violet-500 dark:to-purple-600'
+    },
+    { 
+      icon: <Camera className="w-6 h-6" />, 
+      label: 'Camera',
+      onClick: () => {},
+      gradient: 'from-orange-400 to-red-500 dark:from-orange-500 dark:to-red-600'
+    },
+    { 
+      icon: <Chrome className="w-6 h-6" />, 
+      label: 'Browser',
+      onClick: () => {},
+      gradient: 'from-orange-400 to-red-500 dark:from-orange-500 dark:to-red-600'
+    },
+    { 
+      icon: <Calendar className="w-6 h-6" />, 
+      label: 'Calendar',
+      onClick: () => {},
+      gradient: 'from-pink-400 to-rose-500 dark:from-pink-500 dark:to-rose-600'
+    },
+    { 
+      icon: <Music2 className="w-6 h-6" />, 
+      label: 'Music',
+      onClick: () => {},
+      gradient: 'from-fuchsia-400 to-pink-500 dark:from-fuchsia-500 dark:to-pink-600'
+    },
+    { 
+      icon: <Mail className="w-6 h-6" />, 
+      label: 'Mail',
+      onClick: () => {},
+      gradient: 'from-cyan-400 to-sky-500 dark:from-cyan-500 dark:to-sky-600'
+    },
+    { 
+      icon: <Map className="w-6 h-6" />, 
+      label: 'Maps',
+      onClick: () => {},
+      gradient: 'from-lime-400 to-green-500 dark:from-lime-500 dark:to-green-600'
+    },
+    { 
+      icon: <Cloud className="w-6 h-6" />, 
+      label: 'Weather',
+      onClick: () => {},
+      gradient: 'from-sky-400 to-blue-500 dark:from-sky-500 dark:to-blue-600'
+    },
+    { 
+      icon: <Calculator className="w-6 h-6" />, 
+      label: 'Calculator',
+      onClick: () => {},
+      gradient: 'from-gray-400 to-slate-500 dark:from-gray-500 dark:to-slate-600'
+    },
+    { 
+      icon: <Image className="w-6 h-6" />, 
+      label: 'Photos',
+      onClick: () => {},
+      gradient: 'from-yellow-400 to-orange-500 dark:from-yellow-500 dark:to-orange-600'
+    },
+    { 
+      icon: <Settings className="w-6 h-6" />, 
+      label: 'Settings',
+      onClick: () => {},
+      gradient: 'from-slate-400 to-gray-500 dark:from-slate-500 dark:to-gray-600'
+    }
+  ];
+
+  const dockApps = apps.slice(0, 4);
 
   return (
-    <div className="h-full bg-gradient-to-br from-[#0A0F2C] via-[#1C1D3B] to-[#252A4A] flex flex-col">
-      {/* Status Bar */}
-      <div className="px-4 py-2 flex justify-between items-center text-white/95 bg-black/10">
-        <span className="text-sm font-medium">
-          {time.toLocaleTimeString('en-US', { 
-            hour: 'numeric', 
-            minute: '2-digit',
-            hour12: true 
-          })}
-        </span>
-        <div className="flex items-center gap-2.5">
-          <SignalHigh className="w-4 h-4" />
-          <Wifi className="w-4 h-4" />
-          <Battery className="w-5 h-5" />
-        </div>
+    <div className={`h-full relative ${theme.gradients.main}`}>
+      {/* Background Effects */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full 
+          bg-gradient-to-br from-purple-500/20 to-pink-500/20 dark:from-purple-500/10 dark:to-pink-500/10 
+          blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full 
+          bg-gradient-to-br from-blue-500/20 to-cyan-500/20 dark:from-blue-500/10 dark:to-cyan-500/10 
+          blur-3xl" />
       </div>
 
-      {/* Weather Widget */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mx-4 mt-4 p-4 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20
-                  relative overflow-hidden group shadow-lg shadow-black/10"
-        whileHover={{ scale: 1.02 }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 
-                      opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <div className="relative flex items-center justify-between">
-          <div>
-            <h2 className="text-4xl font-bold text-white">{weather.temp}</h2>
-            <div className="flex items-center gap-2 mt-1">
-              <Cloud className="w-4 h-4 text-white/70" />
-              <p className="text-white/70 text-sm">{weather.condition}</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-white/90 text-lg font-medium">San Francisco</p>
-            <p className="text-white/60 text-sm">H:27° L:18°</p>
-          </div>
-        </div>
-      </motion.div>
+      {/* Status Bar Space */}
+      <div className="h-14" />
 
-      {/* App Grid */}
-      <div className="flex-1 px-4 py-8">
-        <div className="grid grid-cols-4 gap-y-8 gap-x-4">
+      {/* Apps Grid */}
+      <div className="px-6 py-4">
+        <div className="grid grid-cols-4 gap-x-4 gap-y-6">
           {apps.map((app, index) => (
-            <AppIcon
+            <motion.button
               key={index}
-              icon={app.icon}
-              label={app.label}
-              gradient={app.gradient}
-              notification={app.notification}
-            />
+              onClick={app.onClick}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex flex-col items-center gap-2"
+            >
+              <div className={`w-[52px] h-[52px] rounded-2xl bg-gradient-to-br ${app.gradient}
+                flex items-center justify-center shadow-lg
+                ring-1 ring-white/20 dark:ring-white/10
+                backdrop-blur-sm`}>
+                <div className="text-white">
+                  {app.icon}
+                </div>
+              </div>
+              <span className={`text-xs font-medium ${theme.text.primary}
+                text-center max-w-full truncate`}>
+                {app.label}
+              </span>
+            </motion.button>
           ))}
         </div>
       </div>
 
       {/* Dock */}
-      <div className="p-4">
-        <div className="p-4 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20
-                      shadow-lg shadow-black/20">
-          <div className="flex justify-around">
+      <div className="absolute bottom-8 left-4 right-4">
+        <div className={`bg-white/10 dark:bg-white/5 backdrop-blur-xl 
+          rounded-2xl p-4 ring-1 ring-white/20 dark:ring-white/10
+          shadow-lg`}>
+          <div className="flex justify-around items-center gap-2">
             {dockApps.map((app, index) => (
-              <AppIcon
+              <motion.button
                 key={index}
-                icon={app.icon}
-                label={app.label}
-                gradient={app.gradient}
-              />
+                onClick={app.onClick}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className={`w-12 h-12 rounded-xl bg-gradient-to-br ${app.gradient}
+                  flex items-center justify-center shadow-lg
+                  ring-1 ring-white/20 dark:ring-white/10`}
+              >
+                <div className="text-white">
+                  {app.icon}
+                </div>
+              </motion.button>
             ))}
           </div>
         </div>
       </div>
     </div>
   );
-};
+}

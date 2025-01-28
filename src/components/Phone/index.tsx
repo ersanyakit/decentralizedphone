@@ -1,68 +1,116 @@
-import React from 'react';
-import { Card } from '@nextui-org/react';
-import { motion } from 'framer-motion';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { LockScreen } from './LockScreen';
+import { HomeScreen } from './HomeScreen';
+import { DialScreen } from './DialScreen';
+import { ContactsScreen } from './ContactsScreen';
+import { CallScreen } from './CallScreen';
+import { ActiveVideoCallScreen } from './ActiveVideoCallScreen';
+import { Messages } from './Messages';
+import { MessageDetail } from './Messages/MessageDetail';
+import { NewMessage } from './Messages/NewMessage';
+import { AnimatePresence, motion } from 'framer-motion';
 
-interface PhoneProps {
-  children: React.ReactNode;
-}
+export function Phone() {
+  const { currentScreen } = useNavigation();
+  const { theme, isDarkMode } = useTheme();
 
-export const Phone: React.FC<PhoneProps> = ({ children }) => {
+  const screens = {
+    lock: <LockScreen />,
+    home: <HomeScreen />,
+    dial: <DialScreen />,
+    contacts: <ContactsScreen />,
+    call: <CallScreen type="outgoing" name="John Doe" />,
+    videoCall: <ActiveVideoCallScreen name="John Doe" />,
+    messages: <Messages />,
+    messageDetail: <MessageDetail />,
+    newMessage: <NewMessage />
+  };
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8">
-      <motion.div 
-        className="relative"
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-      >
-        {/* Premium Glow Effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-[100px] animate-float" />
+    <div className="relative w-full h-[calc(100vh-2rem)] flex items-center justify-center p-4 overflow-hidden">
+      {/* Ambient Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" />
+      
+      {/* Phone Frame - Boyutları artırıldı */}
+      <div className={`relative w-[340px] h-[95vh] max-h-[700px] rounded-[45px] 
+        ${isDarkMode ? 'bg-[#1a1a1a]' : 'bg-[#ffffff]'}
+        shadow-[0_0_0_12px_rgba(0,0,0,0.15),0_20px_40px_-12px_rgba(0,0,0,0.25)]
+        transition-all duration-500`}>
         
-        {/* Reflective Surface */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 rounded-[60px] backdrop-blur-3xl" />
+        {/* Screen Border */}
+        <div className="absolute inset-0 rounded-[40px] pointer-events-none
+          ring-1 ring-inset ring-white/20 dark:ring-white/10" />
+
+        {/* Dynamic Island */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[90px] h-[25px] 
+          bg-black rounded-b-[18px] z-50">
+          {/* Camera */}
+          <div className="absolute right-[30%] top-[50%] -translate-y-1/2
+            w-[6px] h-[6px] rounded-full bg-[#1a1a1a]
+            ring-[0.5px] ring-inset ring-[#000000]
+            before:absolute before:inset-0 before:rounded-full 
+            before:ring-[2px] before:ring-[#0a0a0a]/50" />
+          {/* Sensor */}
+          <div className="absolute left-[30%] top-[50%] -translate-y-1/2
+            w-[8px] h-[8px] rounded-full bg-[#1a1a1a]
+            ring-[0.5px] ring-inset ring-[#000000]" />
+        </div>
+
+        {/* Power Button */}
+        <div className={`absolute right-[-10px] top-[90px] w-[3px] h-[60px] 
+          ${isDarkMode ? 'bg-[#2a2a2b]' : 'bg-[#e3e3e3]'}
+          rounded-r-sm shadow-lg`} />
+
+        {/* Volume Buttons */}
+        <div className={`absolute left-[-10px] top-[90px] w-[3px] h-[30px] 
+          ${isDarkMode ? 'bg-[#2a2a2b]' : 'bg-[#e3e3e3]'}
+          rounded-l-sm shadow-lg mb-4`} />
+        <div className={`absolute left-[-10px] top-[135px] w-[3px] h-[30px] 
+          ${isDarkMode ? 'bg-[#2a2a2b]' : 'bg-[#e3e3e3]'}
+          rounded-l-sm shadow-lg`} />
         
-        {/* Phone Frame */}
-        <Card className="relative w-[375px] h-[812px] bg-black rounded-[54px] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.3)] border border-white/10">
-          {/* Glass Effect */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-2xl" />
-          
-          {/* Premium Notch Design */}
-          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-[160px] h-[34px] bg-black rounded-b-[24px] z-50">
-            <div className="relative w-full h-full flex items-center justify-center">
-              {/* Dynamic Island Effect */}
-              <motion.div 
-                className="w-24 h-[22px] bg-black rounded-[20px] flex items-center justify-center"
-                animate={{ width: ["96px", "100px", "96px"] }}
-                transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+        {/* Screen Content */}
+        <div className="absolute inset-0 rounded-[40px] overflow-hidden">
+          <div className={`h-full ${theme.gradients.main}`}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentScreen}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.05 }}
+                transition={{ 
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 30
+                }}
+                className="h-full relative"
               >
-                <div className="flex items-center space-x-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
-                </div>
+                {screens[currentScreen]}
               </motion.div>
-            </div>
+            </AnimatePresence>
           </div>
-          
-          {/* Screen Content with Premium Glass Effect */}
-          <div className="h-full w-full pt-[34px] overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800">
-            <div className="relative h-full w-full backdrop-blur-lg">
-              {children}
-            </div>
-          </div>
-          
-          {/* Enhanced Home Indicator */}
-          <motion.div 
-            className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-white/30 rounded-full"
-            animate={{ opacity: [0.3, 0.5, 0.3] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-          
-          {/* Premium Side Buttons */}
-          <div className="absolute right-[-2px] top-[120px] w-[2px] h-16 bg-zinc-800 rounded-l" />
-          <div className="absolute left-[-2px] top-[100px] w-[2px] h-10 bg-zinc-800 rounded-r" />
-          <div className="absolute left-[-2px] top-[160px] w-[2px] h-10 bg-zinc-800 rounded-r" />
-        </Card>
-      </motion.div>
+        </div>
+
+        {/* Bottom Bar Indicator */}
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 
+          w-[100px] h-[4px] bg-black/20 dark:bg-white/20 rounded-full" />
+
+        {/* Glass Reflection */}
+        <div className="absolute inset-0 rounded-[40px] pointer-events-none
+          bg-gradient-to-b from-white/10 via-transparent to-transparent opacity-50" />
+      </div>
+
+      {/* Ambient Light Effect */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
+          w-[400px] h-[400px] rounded-full
+          ${isDarkMode 
+            ? 'bg-gradient-to-r from-violet-500/5 via-purple-500/5 to-indigo-500/5' 
+            : 'bg-gradient-to-r from-violet-200/20 via-purple-200/20 to-indigo-200/20'} 
+          blur-[80px] opacity-60
+          animate-pulse duration-5000`} />
+      </div>
     </div>
   );
-};
+}
