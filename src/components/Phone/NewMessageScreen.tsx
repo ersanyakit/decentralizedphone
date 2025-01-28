@@ -1,218 +1,103 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, ChevronRight, User2, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Send, ChevronLeft } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useNavigation } from '@/contexts/NavigationContext';
+import { Contact, useContacts } from '@/contexts/ContactsContext';
 import { Header } from './components/Header';
 
-interface Contact {
-  id: number;
-  name: string;
-  phone: string;
-  recent?: boolean;
-  avatar?: string;
+interface NewMessageScreenProps {
+  contactId?: number;
+  name?: string;
+  address?: string;
 }
 
-export function NewMessageScreen() {
-  const { theme, isDarkMode } = useTheme();
-  const { navigate } = useNavigation();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedContacts, setSelectedContacts] = useState<Contact[]>([]);
+export function NewMessageScreen({ contactId, name, address }: NewMessageScreenProps) {
+  const { theme, colors } = useTheme();
+  const { navigate, goBack } = useNavigation();
+  const { contacts } = useContacts();
+  const [message, setMessage] = useState('');
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
 
-  const contacts: Contact[] = [
-    {
-      id: 1,
-      name: "Alice Johnson",
-      phone: "+90 532 123 45 67",
-      recent: true
-    },
-    {
-      id: 2,
-      name: "John Smith",
-      phone: "+90 533 234 56 78",
-      recent: true
-    },
-    {
-      id: 3,
-      name: "Emma Davis",
-      phone: "+90 535 345 67 89"
-    },
-    // ... diğer kişiler
-  ];
-
-  const filteredContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    contact.phone.includes(searchQuery)
-  );
-
-  const handleContactSelect = (contact: Contact) => {
-    if (selectedContacts.find(c => c.id === contact.id)) {
-      setSelectedContacts(prev => prev.filter(c => c.id !== contact.id));
-    } else {
-      setSelectedContacts(prev => [...prev, contact]);
+  useEffect(() => {
+    if (contactId) {
+      const contact = contacts.find(c => c.id === contactId);
+      if (contact) {
+        setSelectedContact(contact);
+      } else {
+        navigate('contacts', { selectionMode: 'message' });
+      }
+    } else if (!name || !address) {
+      navigate('contacts', { selectionMode: 'message' });
     }
-  };
+  }, [contactId, name, address]);
 
-  const handleNext = () => {
-    if (selectedContacts.length > 0) {
-      navigate('messageDetail');
+  const handleSend = () => {
+    if (message.trim() && (selectedContact || (name && address))) {
+      // Mesaj gönderme işlemi
+      navigate('messages', { 
+        contactId: selectedContact?.id || contactId,
+        name: selectedContact?.name || name,
+        address: selectedContact?.address || address
+      });
     }
   };
 
   return (
     <div className={`h-full flex flex-col ${theme.gradients.main}`}>
-      <Header 
-        title="Yeni Mesaj" 
+      <Header
+        title="Yeni Mesaj"
+        subtitle={selectedContact?.name || name}
         leftAction={
           <motion.button
             whileTap={{ scale: 0.95 }}
-            onClick={() => navigate('messages')}
+            onClick={goBack}
             className={`p-2 rounded-xl ${theme.buttons.primary}`}
           >
-            <X className={`w-5 h-5 ${theme.text.primary}`} />
-          </motion.button>
-        }
-        rightAction={
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handleNext}
-            className={`px-4 py-2 rounded-xl 
-              ${selectedContacts.length > 0 
-                ? 'bg-blue-500 hover:bg-blue-600' 
-                : `${theme.buttons.primary} opacity-50`}
-              transition-colors duration-200`}
-          >
-            <span className={`text-sm font-medium 
-              ${selectedContacts.length > 0 ? 'text-white' : theme.text.primary}`}>
-              İleri
-            </span>
+            <ChevronLeft className={`w-5 h-5 ${theme.text.primary}`} />
           </motion.button>
         }
       />
 
-      {/* Selected Contacts */}
-      {selectedContacts.length > 0 && (
-        <div className="px-4 py-2">
-          <div className="flex flex-wrap gap-2">
-            {selectedContacts.map(contact => (
-              <motion.div
-                key={contact.id}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0 }}
-                className={`${theme.glass} px-3 py-1.5 rounded-full
-                  flex items-center gap-2
-                  ring-1 ${isDarkMode ? 'ring-white/10' : 'ring-black/5'}`}
-              >
-                <span className={`text-sm ${theme.text.primary}`}>
-                  {contact.name}
-                </span>
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => handleContactSelect(contact)}
-                  className="p-0.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5"
-                >
-                  <X className={`w-4 h-4 ${theme.text.secondary}`} />
-                </motion.button>
-              </motion.div>
-            ))}
+      <div className="flex-1 p-4">
+        {(selectedContact || (name && address)) && (
+          <div className={`${theme.glass} rounded-2xl p-4 mb-4 ${theme.border}`}>
+            <p className={`text-sm ${theme.text.primary}`}>
+              {selectedContact?.name || name}
+            </p>
+            <p className={`text-xs ${theme.text.secondary} mt-1`}>
+              {(selectedContact?.address || address)?.slice(0, 6)}...
+              {(selectedContact?.address || address)?.slice(-4)}
+            </p>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Search Bar */}
-      <div className="px-4 py-2">
-        <div className={`${theme.glass} rounded-xl p-2 flex items-center gap-2
-          ring-1 ${isDarkMode ? 'ring-white/10' : 'ring-black/5'}`}>
-          <Search className={`w-5 h-5 ${theme.text.secondary}`} />
-          <input
-            type="text"
-            placeholder="Kişi ara..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={`bg-transparent flex-1 outline-none ${theme.text.primary} 
-              placeholder:${theme.text.secondary} text-sm`}
+        <div className={`flex-1 ${theme.glass} rounded-2xl p-4 ${theme.border}`}>
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Mesajınızı yazın..."
+            className={`w-full h-full bg-transparent resize-none outline-none
+              ${theme.text.primary} placeholder:${theme.text.secondary}`}
           />
         </div>
       </div>
 
-      {/* Recent Header */}
-      {!searchQuery && (
-        <div className="px-4 py-2">
-          <h3 className={`text-sm font-medium ${theme.text.secondary}`}>
-            Son Mesajlaşılanlar
-          </h3>
-        </div>
-      )}
-
-      {/* Contacts List */}
-      <div className="flex-1 overflow-y-auto hide-scrollbar px-4 py-2">
-        <AnimatePresence>
-          {filteredContacts.map((contact, index) => (
-            <motion.div
-              key={contact.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ delay: index * 0.05 }}
-              onClick={() => handleContactSelect(contact)}
-              className={`mb-2 p-3 rounded-2xl ${theme.glass}
-                ${isDarkMode ? 'hover:bg-white/5' : 'hover:bg-black/5'}
-                transition-colors duration-200 cursor-pointer
-                ring-1 ${isDarkMode ? 'ring-white/10' : 'ring-black/5'}
-                ${selectedContacts.find(c => c.id === contact.id) ? 'bg-blue-500/10' : ''}`}
-            >
-              <div className="flex items-center gap-3">
-                {/* Avatar */}
-                <div className={`w-10 h-10 rounded-full ${theme.glass} 
-                  flex items-center justify-center
-                  ring-2 ${isDarkMode ? 'ring-white/20' : 'ring-black/10'}`}>
-                  {contact.avatar ? (
-                    <img 
-                      src={contact.avatar} 
-                      alt={contact.name}
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  ) : (
-                    <User2 className={`w-5 h-5 ${theme.text.secondary}`} />
-                  )}
-                </div>
-
-                {/* Contact Info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className={`font-medium ${theme.text.primary} truncate`}>
-                    {contact.name}
-                  </h3>
-                  <p className={`text-sm ${theme.text.secondary} truncate`}>
-                    {contact.phone}
-                  </p>
-                </div>
-
-                {/* Selection Indicator */}
-                <div className={`w-6 h-6 rounded-full 
-                  ${selectedContacts.find(c => c.id === contact.id)
-                    ? 'bg-blue-500'
-                    : `${theme.glass} ring-1 ${isDarkMode ? 'ring-white/20' : 'ring-black/10'}`}
-                  flex items-center justify-center`}>
-                  {selectedContacts.find(c => c.id === contact.id) && (
-                    <Check className="w-4 h-4 text-white" />
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+      <div className="p-4">
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={handleSend}
+          disabled={!message.trim()}
+          className={`w-full py-3 rounded-xl flex items-center justify-center gap-2
+            ${message.trim() ? colors.blue.primary : theme.buttons.disabled}
+            transition-all duration-200`}
+        >
+          <Send className={`w-5 h-5 ${message.trim() ? 'text-white' : theme.text.secondary}`} />
+          <span className={`font-medium ${message.trim() ? 'text-white' : theme.text.secondary}`}>
+            Gönder
+          </span>
+        </motion.button>
       </div>
-
-      <style jsx global>{`
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
     </div>
   );
 } 

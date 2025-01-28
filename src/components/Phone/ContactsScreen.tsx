@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Plus, Phone, Video, Mail, Star, Heart, 
-         MessageSquare, ChevronRight, User2, ChevronLeft } from 'lucide-react';
+         MessageSquare, ChevronRight, User2, ChevronLeft, UserPlus2 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useNavigation } from '@/contexts/NavigationContext';
+import { useContacts } from '@/contexts/ContactsContext';
 import { Header } from './components/Header';
 
 interface Contact {
@@ -15,37 +16,25 @@ interface Contact {
   recentCall?: 'missed' | 'incoming' | 'outgoing';
   lastContacted?: string;
   avatar?: string;
+  address: string;
+  isOnline: boolean;
+  isFavorite: boolean;
 }
 
 export function ContactsScreen() {
   const { theme, isDarkMode, colors } = useTheme();
-  const { navigate, goBack } = useNavigation();
+  const { navigate, goBack, params } = useNavigation();
+  const { contacts } = useContacts();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [view, setView] = useState<'all' | 'favorites' | 'recent'>('all');
 
-  const [contacts] = useState<Contact[]>([
-    { 
-      id: 1, 
-      name: 'Alice Johnson', 
-      number: '+1 234 567 89 00', 
-      email: 'alice@example.com',
-      favorite: true,
-      recentCall: 'missed',
-      lastContacted: '2 hours ago'
-    },
-    { id: 2, name: 'Bob Smith', number: '+1 234 567 89 01', email: 'bob@example.com' },
-    { id: 3, name: 'Charlie Brown', number: '+1 234 567 89 02' },
-    { id: 4, name: 'David Wilson', number: '+1 234 567 89 03', email: 'david@example.com' },
-    { id: 5, name: 'Eve Anderson', number: '+1 234 567 89 04' },
-    { id: 6, name: 'Frank Thomas', number: '+1 234 567 89 05', email: 'frank@example.com' },
-    { id: 7, name: 'Grace Lee', number: '+1 234 567 89 06' },
-    { id: 8, name: 'Henry Davis', number: '+1 234 567 89 07', email: 'henry@example.com' },
-  ]);
+  // Seçim modu kontrolü
+  const isSelectionMode = params?.selectionMode as 'call' | 'video' | 'message' | undefined;
 
   const filteredContacts = contacts.filter(contact => {
     const matchesSearch = contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         contact.number.includes(searchQuery);
+                         contact.address.toLowerCase().includes(searchQuery.toLowerCase());
     if (view === 'favorites') return matchesSearch && contact.favorite;
     if (view === 'recent') return matchesSearch && contact.recentCall;
     return matchesSearch;
@@ -63,10 +52,24 @@ export function ContactsScreen() {
     setSelectedContact(selectedContact?.id === contact.id ? null : contact);
   };
 
+  const handleContactSelect = (contact: Contact) => {
+    if (isSelectionMode) {
+      navigate(isSelectionMode, { 
+        address: contact.address,
+        name: contact.name 
+      });
+    }
+  };
+
   return (
     <div className={`h-full flex flex-col ${theme.gradients.main}`}>
       <Header 
-        title="Kişiler"
+        title={isSelectionMode ? "Kişi Seç" : "Kişiler"}
+        subtitle={isSelectionMode && (
+          isSelectionMode === 'call' ? 'Sesli arama için kişi seç' :
+          isSelectionMode === 'video' ? 'Görüntülü arama için kişi seç' :
+          'Mesaj göndermek için kişi seç'
+        )}
         leftAction={
           <motion.button
             whileTap={{ scale: 0.95 }}
@@ -76,14 +79,15 @@ export function ContactsScreen() {
             <ChevronLeft className={`w-5 h-5 ${theme.text.primary}`} />
           </motion.button>
         }
-        rightAction={
+        rightAction={!isSelectionMode && (
           <motion.button
             whileTap={{ scale: 0.95 }}
-            className={`p-2 rounded-xl ${colors.blue.primary} text-white`}
+            onClick={() => navigate('addContact')}
+            className={`p-2 rounded-xl ${colors.blue.primary}`}
           >
-            <Plus className="w-5 h-5" />
+            <UserPlus2 className="w-5 h-5 text-white" />
           </motion.button>
-        }
+        )}
       />
       
       {/* Search and View Selector */}
@@ -93,7 +97,7 @@ export function ContactsScreen() {
           <Search className={`w-4 h-4 ${theme.text.secondary}`} />
           <input
             type="text"
-            placeholder="Kişi ara..."
+            placeholder="İsim veya adres ara..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className={`bg-transparent flex-1 outline-none ${theme.text.primary} 
@@ -178,7 +182,7 @@ export function ContactsScreen() {
                     )}
                   </div>
                   <p className={`text-sm ${theme.text.secondary} truncate`}>
-                    {contact.number}
+                    {contact.address.slice(0, 6)}...{contact.address.slice(-4)}
                   </p>
                   {contact.lastContacted && (
                     <p className={`text-xs ${theme.text.secondary} mt-0.5`}>
@@ -231,7 +235,7 @@ export function ContactsScreen() {
                         <motion.button
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          onClick={() => navigate('messages')}
+                          onClick={() => handleContactSelect(contact)}
                           className={`group relative overflow-hidden
                             py-3 rounded-xl bg-gradient-to-br from-blue-400 to-blue-500
                             hover:from-blue-500 hover:to-blue-600

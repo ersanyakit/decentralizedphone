@@ -6,6 +6,7 @@ import { ChainIdProvider } from '@/context/ChainIdProvider';
 import { FirebaseProvider } from '@/context/FirebaseProvider';
 import { QueryProvider } from '@/context/GlobalQueryContext';
 import { Web3Provider } from '@/context/web3modal';
+import { ContactsProvider } from '@/contexts/ContactsContext';
 
 
 
@@ -20,9 +21,11 @@ const App = ({ Component, pageProps }: AppProps) => (
         <Web3Provider>
           <ChainIdProvider>
 
-              <main className={`text-base`}>
-                <Component {...pageProps} />
-              </main>
+              <ContactsProvider>
+                <main className={`text-base`}>
+                  <Component {...pageProps} />
+                </main>
+              </ContactsProvider>
           </ChainIdProvider>
 
         </Web3Provider>
