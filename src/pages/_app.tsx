@@ -1,0 +1,39 @@
+import { NextUIProvider } from '@nextui-org/react';
+import type { AppProps } from 'next/app';
+import '#src/globals.css';
+import { Web3Provider } from '#src/context/web3modal';
+import { ContributionProvider } from '#src/context/GlobalStateContext';
+import { QueryProvider } from '#src/context/GlobalQueryContext'; // Adjust the path as necessary
+import React, { useEffect } from 'react';
+import { ChainIdProvider } from '#src/context/ChainIdProvider';
+import { FirebaseProvider } from '#src/context/FirebaseProvider';
+
+
+
+
+const App = ({ Component, pageProps }: AppProps) => (
+  <>
+    <NextUIProvider>
+    <FirebaseProvider>
+
+      <QueryProvider>
+
+        <Web3Provider>
+          <ChainIdProvider>
+
+            <ContributionProvider>
+              <main className={`text-base`}>
+                <Component {...pageProps} />
+              </main>
+            </ContributionProvider>
+          </ChainIdProvider>
+
+        </Web3Provider>
+
+      </QueryProvider>
+      </FirebaseProvider>
+    </NextUIProvider>
+  </>
+);
+
+export default App;
