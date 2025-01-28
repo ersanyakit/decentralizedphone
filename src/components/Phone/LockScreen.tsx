@@ -30,16 +30,17 @@ export function LockScreen() {
       exit={{ opacity: 0 }}
     >
       {/* Üst Bar */}
-      <div className="absolute top-0 left-0 right-0 p-4">
-        <div className="flex justify-between items-center gap-3">
+      <div className="pt-14 px-4">
+        <div className="flex justify-between items-stretch gap-3">
           {/* Bildirimler */}
-          <div className={`flex-1 ${theme.glass} rounded-2xl p-3 backdrop-blur-lg
-            ring-1 ${isDarkMode ? 'ring-white/10' : 'ring-black/5'}
-            flex items-center gap-3`}>
-            <Bell className={`w-4 h-4 ${theme.text.secondary}`} />
-            <p className={`text-sm ${theme.text.secondary} truncate`}>
-              Bildirim yok
-            </p>
+          <div className={`flex-1 ${theme.glass} rounded-2xl backdrop-blur-lg
+            ring-1 ${isDarkMode ? 'ring-white/10' : 'ring-black/5'}`}>
+            <div className="p-3 flex items-center gap-2">
+              <Bell className={`w-4 h-4 ${theme.text.secondary}`} />
+              <p className={`text-xs ${theme.text.secondary} truncate`}>
+                Bildirim yok
+              </p>
+            </div>
           </div>
 
           {/* Tema Değiştirici */}
@@ -61,7 +62,7 @@ export function LockScreen() {
       </div>
 
       {/* Saat ve Tarih */}
-      <div className="flex-1 flex flex-col items-center justify-center">
+      <div className="flex-1 flex flex-col items-center justify-center -mt-20">
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

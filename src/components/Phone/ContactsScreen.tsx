@@ -225,42 +225,73 @@ export function ContactsScreen() {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className={`px-4 py-3 border-t 
-                      ${isDarkMode ? 'border-white/10' : 'border-black/5'}`}>
-                      <div className="flex gap-2">
+                    <div className={`p-2 border-t ${isDarkMode ? 'border-white/10' : 'border-black/5'}`}>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {/* Mesaj Butonu */}
                         <motion.button
-                          whileTap={{ scale: 0.95 }}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={() => navigate('messages')}
-                          className={`flex-1 py-2 px-3 rounded-lg ${colors.blue.primary}
-                            flex items-center justify-center gap-2 text-white`}
+                          className={`group relative overflow-hidden
+                            py-3 rounded-xl bg-gradient-to-br from-blue-400 to-blue-500
+                            hover:from-blue-500 hover:to-blue-600
+                            active:from-blue-600 active:to-blue-700
+                            transition-all duration-200`}
                         >
-                          <MessageSquare className="w-4 h-4" />
-                          <span className="text-sm">Mesaj</span>
+                          <div className="absolute inset-0 bg-white/10 opacity-0 
+                            group-hover:opacity-100 transition-opacity duration-200" />
+                          <div className="relative flex flex-col items-center gap-1">
+                            <MessageSquare className="w-5 h-5 text-white" />
+                            <span className="text-[10px] font-medium text-white/90">Mesaj</span>
+                          </div>
                         </motion.button>
+
+                        {/* E-posta Butonu */}
                         {contact.email && (
                           <motion.button
-                            whileTap={{ scale: 0.95 }}
-                            className={`flex-1 py-2 px-3 rounded-lg ${colors.purple.primary}
-                              flex items-center justify-center gap-2 text-white`}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={`group relative overflow-hidden
+                              py-3 rounded-xl bg-gradient-to-br from-violet-400 to-violet-500
+                              hover:from-violet-500 hover:to-violet-600
+                              active:from-violet-600 active:to-violet-700
+                              transition-all duration-200`}
                           >
-                            <Mail className="w-4 h-4" />
-                            <span className="text-sm">E-posta</span>
+                            <div className="absolute inset-0 bg-white/10 opacity-0 
+                              group-hover:opacity-100 transition-opacity duration-200" />
+                            <div className="relative flex flex-col items-center gap-1">
+                              <Mail className="w-5 h-5 text-white" />
+                              <span className="text-[10px] font-medium text-white/90">E-posta</span>
+                            </div>
                           </motion.button>
                         )}
+
+                        {/* Favori Butonu */}
                         <motion.button
-                          whileTap={{ scale: 0.95 }}
-                          className={`flex-1 py-2 px-3 rounded-lg 
-                            ${contact.favorite ? colors.red.primary : colors.yellow.primary}
-                            flex items-center justify-center gap-2 text-white`}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className={`group relative overflow-hidden
+                            py-3 rounded-xl bg-gradient-to-br 
+                            ${contact.favorite 
+                              ? 'from-rose-400 to-rose-500 hover:from-rose-500 hover:to-rose-600 active:from-rose-600 active:to-rose-700'
+                              : 'from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 active:from-amber-600 active:to-amber-700'}
+                            transition-all duration-200`}
                         >
-                          {contact.favorite ? (
-                            <Heart className="w-4 h-4" />
-                          ) : (
-                            <Star className="w-4 h-4" />
-                          )}
-                          <span className="text-sm">
-                            {contact.favorite ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
-                          </span>
+                          <div className="absolute inset-0 bg-white/10 opacity-0 
+                            group-hover:opacity-100 transition-opacity duration-200" />
+                          <div className="relative flex flex-col items-center gap-1">
+                            {contact.favorite ? (
+                              <>
+                                <Heart className="w-5 h-5 text-white" />
+                                <span className="text-[10px] font-medium text-white/90">Favorilerden Çıkar</span>
+                              </>
+                            ) : (
+                              <>
+                                <Star className="w-5 h-5 text-white" />
+                                <span className="text-[10px] font-medium text-white/90">Favorilere Ekle</span>
+                              </>
+                            )}
+                          </div>
                         </motion.button>
                       </div>
                     </div>

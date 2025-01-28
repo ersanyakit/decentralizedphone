@@ -1,122 +1,149 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Phone, Mic, Camera, VolumeX, FlipHorizontal } from 'lucide-react';
+import { Phone, Video, Mic, VolumeX, PhoneOff } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { Header } from './components/Header';
+import { webRTCService } from '@/services/WebRTCService';
 
-interface VideoCallScreenProps {
-  name: string;
-}
-
-export function ActiveVideoCallScreen({ name }: VideoCallScreenProps) {
+export function ActiveVideoCallScreen({ name }: { name: string }) {
   const { theme } = useTheme();
   const { navigate } = useNavigation();
-  const [callDuration, setCallDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
-  const [isCameraOn, setIsCameraOn] = useState(true);
+  const [isCameraOff, setIsCameraOff] = useState(false);
+  const [isCameraReady, setIsCameraReady] = useState(false);
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCallDuration(prev => prev + 1);
-    }, 1000);
-    return () => clearInterval(timer);
+    let stream: MediaStream | null = null;
+
+    const setupCamera = async () => {
+      try {
+        // Kamera erişimi iste
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'user',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
+          audio: true
+        });
+
+        // Yerel videoyu göster
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+          await localVideoRef.current.play().catch(() => {
+            console.log('Autoplay prevented');
+          });
+          setIsCameraReady(true);
+        }
+
+        // WebRTC bağlantısını başlat
+        await webRTCService.startCall(true);
+
+      } catch (error) {
+        console.error('Camera access error:', error);
+        handleEndCall();
+      }
+    };
+
+    setupCamera();
+
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      webRTCService.endCall();
+    };
   }, []);
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
   const handleEndCall = () => {
+    webRTCService.endCall();
     navigate('home');
   };
 
+  const toggleCamera = () => {
+    const localStream = webRTCService.getLocalStream();
+    if (localStream) {
+      localStream.getVideoTracks().forEach(track => {
+        track.enabled = !track.enabled;
+      });
+      setIsCameraOff(!isCameraOff);
+    }
+  };
+
   return (
-    <div className={`h-full relative ${theme.gradients.main}`}>
-      {/* Main Video Area (Remote User) */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center">
-            <span className="text-3xl text-white">{name[0]}</span>
-          </div>
-        </div>
-        
-        {/* Call Duration */}
-        <div className="absolute top-12 left-1/2 -translate-x-1/2 
-          px-4 py-1 rounded-full bg-black/50 backdrop-blur-md">
-          <p className="text-white text-sm font-medium">
-            {formatTime(callDuration)}
-          </p>
-        </div>
+    <div className={`h-full flex flex-col ${theme.gradients.main}`}>
+      <Header title="Video Call" subtitle={name} />
 
-        {/* Self View */}
-        <motion.div 
-          drag
-          dragConstraints={{
-            top: 60,
-            left: 20,
-            right: 20,
-            bottom: 100
+      <div className="flex-1 relative">
+        <video
+          ref={remoteVideoRef}
+          autoPlay
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <video
+          ref={localVideoRef}
+          autoPlay
+          playsInline
+          muted
+          className={`absolute bottom-4 right-4 w-32 h-48 
+                   object-cover rounded-2xl border border-white/20 
+                   shadow-lg z-10 transform mirror
+                   ${isCameraReady && !isCameraOff ? 'opacity-100' : 'opacity-0'}`}
+          onLoadedMetadata={() => {
+            if (localVideoRef.current) {
+              localVideoRef.current.play().catch(console.error);
+            }
           }}
-          className="absolute top-20 right-4 w-32 h-48 rounded-2xl overflow-hidden
-            shadow-lg border-2 border-white/20"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900
-            flex items-center justify-center">
-            {isCameraOn ? (
-              <div className="w-12 h-12 rounded-full bg-gray-700 
-                flex items-center justify-center">
-                <span className="text-xl text-white">Me</span>
-              </div>
-            ) : (
-              <Camera className="w-8 h-8 text-gray-400" />
-            )}
+        />
+        {(!isCameraReady || isCameraOff) && (
+          <div className="absolute bottom-4 right-4 w-32 h-48 
+                       rounded-2xl border border-white/20 
+                       bg-black/40 flex items-center justify-center">
+            <span className="text-white/60 text-sm">
+              {!isCameraReady ? 'Kamera başlatılıyor...' : 'Kamera kapalı'}
+            </span>
           </div>
-        </motion.div>
+        )}
+      </div>
 
-        {/* Controls */}
-        <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-6">
-          {/* Additional Controls */}
-          <div className="flex items-center gap-4">
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsMuted(!isMuted)}
-              className={`p-3 rounded-full backdrop-blur-md
-                ${isMuted ? 'bg-red-500/90' : 'bg-white/10'}`}
-            >
-              <Mic className={`w-5 h-5 ${isMuted ? 'text-white' : 'text-white'}`} />
-            </motion.button>
+      {/* Call Controls */}
+      <div className="p-4">
+        <div className="flex justify-center gap-4">
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsMuted(!isMuted)}
+            className={`p-4 rounded-full ${isMuted ? 'bg-red-500' : theme.glass}`}
+          >
+            <Mic className={`w-6 h-6 ${isMuted ? 'text-white' : theme.text.primary}`} />
+          </motion.button>
 
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsCameraOn(!isCameraOn)}
-              className={`p-3 rounded-full backdrop-blur-md
-                ${!isCameraOn ? 'bg-red-500/90' : 'bg-white/10'}`}
-            >
-              <Camera className={`w-5 h-5 ${!isCameraOn ? 'text-white' : 'text-white'}`} />
-            </motion.button>
-
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              className="p-3 rounded-full bg-white/10 backdrop-blur-md"
-            >
-              <FlipHorizontal className="w-5 h-5 text-white" />
-            </motion.button>
-          </div>
-
-          {/* End Call Button */}
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={handleEndCall}
-            className="p-4 rounded-full bg-red-500 shadow-lg
-              hover:bg-red-600 transition-colors duration-200"
+            className="p-4 rounded-full bg-red-500"
           >
-            <Phone className="w-6 h-6 text-white rotate-[135deg]" />
+            <PhoneOff className="w-6 h-6 text-white" />
+          </motion.button>
+
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={toggleCamera}
+            className={`p-4 rounded-full ${isCameraOff ? 'bg-red-500' : theme.glass}`}
+          >
+            <Video className={`w-6 h-6 ${isCameraOff ? 'text-white' : theme.text.primary}`} />
           </motion.button>
         </div>
       </div>
+
+      <style jsx global>{`
+        .mirror {
+          transform: scaleX(-1);
+        }
+      `}</style>
     </div>
   );
 } 
