@@ -1,8 +1,7 @@
-import { isContribution } from "#lib/utils";
-import { EMOJIS, TWEET_HEAD, TWEETS, TWITTER_USERS } from "#src/constants/constants";
-import { Tokens } from "#src/constants/tokens";
-import { Contribution, Player } from "#src/types/Contribution";
-import { Token } from "#src/types/web3.types";
+
+import { EMOJIS, TWEET_HEAD, TWEETS, TWITTER_USERS } from "@/constants/constants";
+import { Tokens } from "@/constants/tokens";
+import { Token } from "@/entities";
 import { ethers, formatUnits, isAddress, keccak256, parseEther, parseUnits } from "ethers";
 
 // Interface definition
@@ -166,22 +165,7 @@ export const randomUsers: string = [
   "@el33th4xor"
 ].join(' ');
 
-export const generateTweetIntentByContribution = (contributionObject: Contribution | Player): string => {
-
  
-  var checkIsContribution : boolean  = isContribution(contributionObject)
-  var tweetText = checkIsContribution ? `${(contributionObject as Contribution).description }` : randomHead ;
-
-  let walletAddress = checkIsContribution ? (contributionObject as Contribution).contributor : (contributionObject as Player).wallet
-
-  if(!containsLink(tweetText)){
-    let shareURL = generateShareURL(walletAddress,contributionObject.index);
-    tweetText = `${tweetText}\n\n${randomUsers}\n\n${shareURL}`
-  }
-  const encodedTweetText = encodeURIComponent(tweetText);
-
-  return `https://twitter.com/intent/tweet?text=${encodedTweetText}`;
-};
 
 export const  getTokenAddressesByChainId = (chainId: number): string[] => {
   return Tokens

@@ -1,5 +1,4 @@
-import { Contribution, Player } from "#src/types/Contribution";
-import { TweetIdComponents } from "#src/types/web3.types";
+import { TweetIdComponents } from "@/types/web3.types";
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -7,11 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const isContribution = (location: Player | Contribution | null | undefined): location is Contribution => {
-  // 'token' özelliği olup olmadığını kontrol eder
-  return location ? 'token' in location : false;
-}
-
+ 
 
 
 export const extractTweetId = (url: string): string => {

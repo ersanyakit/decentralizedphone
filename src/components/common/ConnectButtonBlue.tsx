@@ -1,8 +1,6 @@
 import { Button } from '@nextui-org/react';
 import { useAppKit, useAppKitAccount } from '@reown/appkit/react';
-import { FormatAddressDesign } from '#src/utils/helpers';
 import React, { useEffect } from 'react';
-import { Unicon } from '#components/Unicon';
 import { Globe } from 'lucide-react';
 
 const ConnectButtonBlue = () => {
@@ -23,7 +21,7 @@ const ConnectButtonBlue = () => {
             color="primary"
             startContent={
                 isConnected ?
-                    <div className='animate-spin'><Unicon address={address || ""} size={32} randomSeed={32} /></div>
+                    <div className='animate-spin'>asdad</div>
                     : <div className='animate-spin'>
                         <Globe size={32} color='white' />
                     </div>

@@ -1,4 +1,4 @@
-import { TNetwork } from '#src/types/web3.types';
+import { TNetwork } from '@/types/web3.types';
 import { chiliz,spicy,hardhat,avalanche } from 'viem/chains';
 
 export const ChilizMainnet: TNetwork = {

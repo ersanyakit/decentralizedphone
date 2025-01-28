@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mic, PhoneOff, Camera, CameraOff, Video, VideoOff } from 'lucide-react';
 import { phoneTheme } from '@/utils/phoneTheme';
@@ -13,7 +13,7 @@ export function ActiveVideoCallScreen({ name }: ActiveVideoCallScreenProps) {
   const [callDuration, setCallDuration] = useState(0);
 
   // Call duration timer
-  useState(() => {
+  useEffect(() => {
     const timer = setInterval(() => {
       setCallDuration(prev => prev + 1);
     }, 1000);

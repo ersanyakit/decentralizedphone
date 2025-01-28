@@ -1,4 +1,4 @@
-import { Tokens } from '#src/constants/tokens';
+import { Tokens } from '@/constants/tokens';
 import { ethers } from 'ethers';
 import { LatLngExpression } from 'leaflet';
 import Geohash from 'ngeohash';

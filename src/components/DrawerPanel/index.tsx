@@ -1,4 +1,3 @@
-import { useContributionContext } from '#src/context/GlobalStateContext';
 import {
   Avatar,
   AvatarGroup,

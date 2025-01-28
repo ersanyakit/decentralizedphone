@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { getToken, isSupported } from "firebase/messaging";
 import useNotificationPermission from "./useNotificationPermission";
-import { messaging } from "#src/utils/firebase";
+import { messaging } from "@/utils/firebase";
 
 const useFCMToken = () => {
   const permission = useNotificationPermission();

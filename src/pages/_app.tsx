@@ -1,12 +1,11 @@
 import { NextUIProvider } from '@nextui-org/react';
 import type { AppProps } from 'next/app';
-import '#src/globals.css';
-import { Web3Provider } from '#src/context/web3modal';
-import { ContributionProvider } from '#src/context/GlobalStateContext';
-import { QueryProvider } from '#src/context/GlobalQueryContext'; // Adjust the path as necessary
+import '../globals.css';
 import React, { useEffect } from 'react';
-import { ChainIdProvider } from '#src/context/ChainIdProvider';
-import { FirebaseProvider } from '#src/context/FirebaseProvider';
+import { ChainIdProvider } from '@/context/ChainIdProvider';
+import { FirebaseProvider } from '@/context/FirebaseProvider';
+import { QueryProvider } from '@/context/GlobalQueryContext';
+import { Web3Provider } from '@/context/web3modal';
 
 
 
@@ -21,11 +20,9 @@ const App = ({ Component, pageProps }: AppProps) => (
         <Web3Provider>
           <ChainIdProvider>
 
-            <ContributionProvider>
               <main className={`text-base`}>
                 <Component {...pageProps} />
               </main>
-            </ContributionProvider>
           </ChainIdProvider>
 
         </Web3Provider>

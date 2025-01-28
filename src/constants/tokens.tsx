@@ -1,7 +1,6 @@
-import { Token } from "#src/types/web3.types";
 
   
-  export const Tokens: Token[] = [
+  export const Tokens: any[] = [
         {
             "chainId": 88888,
             "address": "0x0000000000000000000000000000000000000000",

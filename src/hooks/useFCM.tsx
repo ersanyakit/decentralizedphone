@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { MessagePayload, onMessage } from "firebase/messaging";
 import useFCMToken from "./useFCMToken";
-import { messaging } from "#src/utils/firebase";
+import { messaging } from "@/utils/firebase";
 
 const useFCM = () => {
   const fcmToken = useFCMToken();
