@@ -43,7 +43,7 @@ export function CallScreen({ type, name }: CallScreenProps) {
     <div className={`h-full flex flex-col ${theme.gradients.main}`}>
       <Header 
         title={type === 'video' ? 'Görüntülü Arama' : 'Sesli Arama'}
-        showBack={false}
+        subtitle={name}
       />
 
       {/* Dekoratif arka plan efektleri */}

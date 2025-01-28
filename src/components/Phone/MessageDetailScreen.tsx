@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Image, Smile, Paperclip, MoreVertical, ChevronLeft, User2, Phone, Video } from 'lucide-react';
+import { Send, Image, Smile, Paperclip, MoreVertical, ChevronLeft, User2, Phone, Video, Check } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { Header } from './components/Header';
