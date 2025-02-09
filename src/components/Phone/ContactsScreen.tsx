@@ -35,8 +35,8 @@ export function ContactsScreen() {
   const filteredContacts = contacts.filter(contact => {
     const matchesSearch = contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          contact.address.toLowerCase().includes(searchQuery.toLowerCase());
-    if (view === 'favorites') return matchesSearch && contact.favorite;
-    if (view === 'recent') return matchesSearch && contact.recentCall;
+    if (view === 'favorites') return matchesSearch && contact.isFavorite;
+    if (view === 'recent') return matchesSearch && contact.lastContacted;
     return matchesSearch;
   });
 

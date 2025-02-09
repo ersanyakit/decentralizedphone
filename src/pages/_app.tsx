@@ -7,6 +7,7 @@ import { FirebaseProvider } from '@/context/FirebaseProvider';
 import { QueryProvider } from '@/context/GlobalQueryContext';
 import { Web3Provider } from '@/context/web3modal';
 import { ContactsProvider } from '@/contexts/ContactsContext';
+import { WebRTCProvider } from '@/contexts/WebRTCContext';
 
 
 
@@ -17,6 +18,7 @@ const App = ({ Component, pageProps }: AppProps) => (
     <FirebaseProvider>
 
       <QueryProvider>
+      <WebRTCProvider>
 
         <Web3Provider>
           <ChainIdProvider>
@@ -29,6 +31,7 @@ const App = ({ Component, pageProps }: AppProps) => (
           </ChainIdProvider>
 
         </Web3Provider>
+        </WebRTCProvider>
 
       </QueryProvider>
       </FirebaseProvider>

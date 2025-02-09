@@ -10,10 +10,13 @@ import { Messages } from './Messages';
 import { MessageDetail } from './Messages/MessageDetail';
 import { NewMessage } from './Messages/NewMessage';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useWebRTC } from '@/contexts/WebRTCContext';
+import { IncomingCallScreen } from './IncomingCallScreen';
 
 export function Phone() {
   const { currentScreen } = useNavigation();
   const { theme, isDarkMode } = useTheme();
+  const { incomingCall } = useWebRTC();
 
   const screens = {
     lock: <LockScreen />,
@@ -24,8 +27,14 @@ export function Phone() {
     videoCall: <ActiveVideoCallScreen name="John Doe" />,
     messages: <Messages />,
     messageDetail: <MessageDetail />,
-    newMessage: <NewMessage />
+    newMessage: <NewMessage />,
+    incomingCall: <IncomingCallScreen />
   };
+
+  // Gelen arama varsa IncomingCallScreen'i göster
+  if (incomingCall) {
+    return screens.incomingCall;
+  }
 
   return (
     <div className="relative w-full h-[calc(100vh)] flex items-center justify-center  overflow-hidden">

@@ -28,10 +28,12 @@ export function DialScreen() {
         navigate('call', { type: 'video', name: contact.name });
         break;
       case 'message':
-        navigate('newMessage', { 
-          contactId: contact.id,
-          name: contact.name,
-          address: contact.address
+        navigate('messageDetail', { 
+          contact: {
+            id: contact.id,
+            name: contact.name,
+            address: contact.address
+          }
         });
         break;
     }

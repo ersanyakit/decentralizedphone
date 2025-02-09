@@ -1,14 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useWebRTC } from '@/contexts/WebRTCContext';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Phone, Video, Mic, VolumeX, PhoneOff } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useNavigation } from '@/contexts/NavigationContext';
 import { Header } from './components/Header';
 import { webRTCService } from '@/services/WebRTCService';
 
 export function ActiveVideoCallScreen({ name }: { name: string }) {
-  const { theme } = useTheme();
+  const { localStream, remoteStream, endCall } = useWebRTC();
   const { navigate } = useNavigation();
+  const { theme } = useTheme();
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOff, setIsCameraOff] = useState(false);
   const [isCameraReady, setIsCameraReady] = useState(false);
@@ -16,50 +18,16 @@ export function ActiveVideoCallScreen({ name }: { name: string }) {
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    let stream: MediaStream | null = null;
-
-    const setupCamera = async () => {
-      try {
-        // Kamera erişimi iste
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: 'user',
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          },
-          audio: true
-        });
-
-        // Yerel videoyu göster
-        if (localVideoRef.current) {
-          localVideoRef.current.srcObject = stream;
-          await localVideoRef.current.play().catch(() => {
-            console.log('Autoplay prevented');
-          });
-          setIsCameraReady(true);
-        }
-
-        // WebRTC bağlantısını başlat
-        await webRTCService.startCall(true);
-
-      } catch (error) {
-        console.error('Camera access error:', error);
-        handleEndCall();
-      }
-    };
-
-    setupCamera();
-
-    return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-      webRTCService.endCall();
-    };
-  }, []);
+    if (localVideoRef.current && localStream) {
+      localVideoRef.current.srcObject = localStream;
+    }
+    if (remoteVideoRef.current && remoteStream) {
+      remoteVideoRef.current.srcObject = remoteStream;
+    }
+  }, [localStream, remoteStream]);
 
   const handleEndCall = () => {
-    webRTCService.endCall();
+    endCall();
     navigate('home');
   };
 

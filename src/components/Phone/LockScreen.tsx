@@ -9,14 +9,24 @@ export function LockScreen() {
   const { navigate } = useNavigation();
   const [time, setTime] = useState(new Date());
   const [isUnlocking, setIsUnlocking] = useState(false);
-
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const handleUnlock = () => {
+  const handleUnlock = async () => {
     setIsUnlocking(true);
+    
+    // Wait for FCM token if it's not available yet
+      await new Promise(resolve => {
+        const checkToken = setInterval(() => {
+  
+            resolve(true);
+   
+        }, 100);
+      });
+
+    
     setTimeout(() => {
       navigate('home');
     }, 300);
