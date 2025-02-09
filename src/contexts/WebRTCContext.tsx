@@ -29,6 +29,7 @@ export function WebRTCProvider({ children }: { children: React.ReactNode }) {
     ws.current = new WebSocket(WS_URL);
 
     ws.current.onmessage = async (event) => {
+        console.log("EVENT GELDI",event)
       const data = JSON.parse(event.data);
 
       switch (data.type) {
