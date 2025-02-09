@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
 type Screen = 'lock' | 'home' | 'dial' | 'contacts' | 'call' | 'videoCall' | 
-              'messages' | 'messageDetail' | 'newMessage';
+              'messages' | 'messageDetail' | 'newMessage' | 'addContact'  | 'video' | 'message';
 
 interface NavigationContextType {
   currentScreen: Screen;

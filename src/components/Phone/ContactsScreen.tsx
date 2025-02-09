@@ -4,22 +4,10 @@ import { Search, Plus, Phone, Video, Mail, Star, Heart,
          MessageSquare, ChevronRight, User2, ChevronLeft, UserPlus2 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useNavigation } from '@/contexts/NavigationContext';
-import { useContacts } from '@/contexts/ContactsContext';
+import { Contact, useContacts } from '@/contexts/ContactsContext';
 import { Header } from './components/Header';
 
-interface Contact {
-  id: number;
-  name: string;
-  number: string;
-  email?: string;
-  favorite?: boolean;
-  recentCall?: 'missed' | 'incoming' | 'outgoing';
-  lastContacted?: string;
-  avatar?: string;
-  address: string;
-  isOnline: boolean;
-  isFavorite: boolean;
-}
+
 
 export function ContactsScreen() {
   const { theme, isDarkMode, colors } = useTheme();
@@ -55,8 +43,7 @@ export function ContactsScreen() {
   const handleContactSelect = (contact: Contact) => {
     if (isSelectionMode) {
       navigate(isSelectionMode, { 
-        address: contact.address,
-        name: contact.name 
+        contact: contact,
       });
     }
   };
@@ -155,7 +142,7 @@ export function ContactsScreen() {
                   ) : (
                     <User2 className={`w-6 h-6 ${theme.text.secondary}`} />
                   )}
-                  {contact.favorite && (
+                  {contact.isFavorite && (
                     <div className="absolute -top-1 -right-1">
                       <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                     </div>
@@ -276,7 +263,7 @@ export function ContactsScreen() {
                           whileTap={{ scale: 0.98 }}
                           className={`group relative overflow-hidden
                             py-3 rounded-xl bg-gradient-to-br 
-                            ${contact.favorite 
+                            ${contact.isFavorite 
                               ? 'from-rose-400 to-rose-500 hover:from-rose-500 hover:to-rose-600 active:from-rose-600 active:to-rose-700'
                               : 'from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 active:from-amber-600 active:to-amber-700'}
                             transition-all duration-200`}
@@ -284,7 +271,7 @@ export function ContactsScreen() {
                           <div className="absolute inset-0 bg-white/10 opacity-0 
                             group-hover:opacity-100 transition-opacity duration-200" />
                           <div className="relative flex flex-col items-center gap-1">
-                            {contact.favorite ? (
+                            {contact.isFavorite ? (
                               <>
                                 <Heart className="w-5 h-5 text-white" />
                                 <span className="text-[10px] font-medium text-white/90">Favorilerden Çıkar</span>

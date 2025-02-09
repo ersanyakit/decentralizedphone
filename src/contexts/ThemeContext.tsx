@@ -12,6 +12,7 @@ interface Theme {
   buttons: {
     primary: string;
     secondary: string;
+    disabled: string;
   };
   glass: string;
   border: string;
@@ -30,7 +31,8 @@ const lightTheme: Theme = {
   },
   buttons: {
     primary: 'hover:bg-gray-100 active:bg-gray-200',
-    secondary: 'bg-blue-500 hover:bg-blue-600 text-white'
+    secondary: 'bg-blue-500 hover:bg-blue-600 text-white',
+    disabled: 'bg-gray-100 cursor-not-allowed'
   },
   glass: 'bg-white/80 backdrop-blur-md',
   border: 'ring-1 ring-black/5',
@@ -49,7 +51,8 @@ const darkTheme: Theme = {
   },
   buttons: {
     primary: 'hover:bg-white/10 active:bg-white/20',
-    secondary: 'bg-blue-500 hover:bg-blue-600 text-white'
+    secondary: 'bg-blue-500 hover:bg-blue-600 text-white',
+    disabled: 'bg-gray-800/50 cursor-not-allowed'
   },
   glass: 'bg-gray-800/30 backdrop-blur-md',
   border: 'ring-1 ring-white/10',

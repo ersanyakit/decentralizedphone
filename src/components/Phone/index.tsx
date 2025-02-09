@@ -18,17 +18,22 @@ export function Phone() {
   const { theme, isDarkMode } = useTheme();
   const { incomingCall } = useWebRTC();
 
-  const screens = {
+  type Screen ='addContact'| 'lock' | 'message' |'video' | 'home' | 'dial' | 'contacts' | 'call' | 'videoCall' | 'messages' | 'messageDetail' | 'newMessage' | 'incomingCall';
+
+  const screens: Record<Screen, JSX.Element> = {
     lock: <LockScreen />,
     home: <HomeScreen />,
     dial: <DialScreen />,
     contacts: <ContactsScreen />,
     call: <CallScreen type="outgoing" name="John Doe" />,
     videoCall: <ActiveVideoCallScreen name="John Doe" />,
+    video: <ActiveVideoCallScreen name="John Doe" />,
     messages: <Messages />,
+    message: <Messages />,
     messageDetail: <MessageDetail />,
     newMessage: <NewMessage />,
-    incomingCall: <IncomingCallScreen />
+    incomingCall: <IncomingCallScreen />,
+    addContact:<ContactsScreen />
   };
 
   // Gelen arama varsa IncomingCallScreen'i göster
