@@ -15,6 +15,8 @@ interface Theme {
   };
   glass: string;
   border: string;
+  backgroundColor: string;
+  textColor: string;
 }
 
 const lightTheme: Theme = {
@@ -31,7 +33,9 @@ const lightTheme: Theme = {
     secondary: 'bg-blue-500 hover:bg-blue-600 text-white'
   },
   glass: 'bg-white/80 backdrop-blur-md',
-  border: 'ring-1 ring-black/5'
+  border: 'ring-1 ring-black/5',
+  backgroundColor: 'bg-gray-50',
+  textColor: 'text-gray-900'
 };
 
 const darkTheme: Theme = {
@@ -48,7 +52,9 @@ const darkTheme: Theme = {
     secondary: 'bg-blue-500 hover:bg-blue-600 text-white'
   },
   glass: 'bg-gray-800/30 backdrop-blur-md',
-  border: 'ring-1 ring-white/10'
+  border: 'ring-1 ring-white/10',
+  backgroundColor: 'bg-gray-900',
+  textColor: 'text-gray-100'
 };
 
 // Özel renkler

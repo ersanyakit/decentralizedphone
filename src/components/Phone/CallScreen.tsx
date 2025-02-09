@@ -59,7 +59,7 @@ export function CallScreen({ type, name }: CallScreenProps) {
   return (
     <div className="flex flex-col h-full bg-opacity-95" 
          style={{ backgroundColor: theme.backgroundColor }}>
-      <Header />
+      <Header title="Call" />
       
       <div className="flex-1 flex flex-col items-center justify-center space-y-6">
         {type === 'video' && (
